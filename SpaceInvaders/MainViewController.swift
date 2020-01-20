@@ -31,7 +31,7 @@ class MainViewController: UIViewController, EmiterDelegate {
     
     var isFire: Bool = false
     
-    let emiter = Emiter()
+    let playerEmiter = Emiter()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,10 +49,10 @@ class MainViewController: UIViewController, EmiterDelegate {
         fireView.backgroundColor = .red
         view.addSubview(fireView)
         
-        emiter.view = fireView
-        emiter.yOffset = 1.0
-        emiter.delegate = self
-        emiter.timeInterval = 0.0005
+        playerEmiter.view = fireView
+        playerEmiter.yOffset = 1.0
+        playerEmiter.delegate = self
+        playerEmiter.timeInterval = 0.0005
         
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panGestureRecognizer(recognizer:)))
         view.addGestureRecognizer(panGestureRecognizer)
@@ -74,15 +74,24 @@ class MainViewController: UIViewController, EmiterDelegate {
     @objc func tapGestureRecognizer(recognizer: UITapGestureRecognizer) {
         if !isFire {
             fireView.frame = CGRect(x: playerView.frame.minX, y: playerView.frame.minY - Constants.Fire.size, width: Constants.Fire.size, height: Constants.Fire.size)
-            emiter.start()
+            playerEmiter.start()
             isFire = true
         }
     }
     
     func emiter(_ emiter: Emiter, didMoveView v: UIView) {
         if v.frame.minY < -v.frame.width {
-            emiter.stop()
+            playerEmiter.stop()
             isFire = false
+        } else if let block = blockViews.filter({v.frame.minY <= $0.frame.maxY && v.frame.maxX > $0.frame.minX && v.frame.minX < $0.frame.maxX}).first {
+            block.removeFromSuperview()
+            blockViews.removeAll(where: {block == $0})
+            playerEmiter.stop()
+            isFire = false
+        }
+        
+        if blockViews.isEmpty {
+            blindView?.isHidden = false
         }
     }
     
@@ -98,7 +107,7 @@ class MainViewController: UIViewController, EmiterDelegate {
         blockViews.removeAll()
         var lastX: CGFloat = 0.0
         var lastY: CGFloat = UIApplication.shared.statusBarFrame.height
-        for _ in 0 ..< 5 {
+        for _ in 0 ..< 10 {
             let count = 5
             lastX = 0.0
             for _ in 0 ... count - 1 {
