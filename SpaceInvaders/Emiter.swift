@@ -36,7 +36,7 @@ class Emiter {
     }
     
     @objc func timerTick(timer: Timer) {
-        view?.frame = CGRect(x: view!.frame.minX, y: view!.frame.minY - yOffset, width: view!.frame.width, height: view!.frame.height)
+        view?.frame = CGRect(x: view!.frame.minX, y: view!.frame.minY + yOffset, width: view!.frame.width, height: view!.frame.height)
         delegate?.emiter(self, didMoveView: view!)
     }
     
@@ -47,5 +47,9 @@ class Emiter {
     func stopTimer() {
         timer?.invalidate()
         timer = nil
+    }
+    
+    static func ==(lhs: Emiter, rhs: Emiter) -> Bool {
+        return lhs.view == rhs.view && lhs.timer == rhs.timer && lhs.yOffset == rhs.yOffset && lhs.yOffset == rhs.yOffset && lhs.timeInterval == rhs.timeInterval
     }
 }
